@@ -1,0 +1,61 @@
+//******************************************************** Python Code *******************************************//
+import RPi.GPIO as GPIO
+import tkinter as tk
+
+# ---------------- GPIO SETUP ----------------
+GPIO.setmode(GPIO.BOARD)  # Using BOARD numbering
+GPIO.setwarnings(False)
+
+# Assign your LED pins (physical pin numbers)
+LED1 = 29
+LED2 = 31
+LED3 = 33
+
+pins = [LED1, LED2, LED3]
+
+# Setup pins as output
+for pin in pins:
+    GPIO.setup(pin, GPIO.OUT)
+
+# Setup PWM on pins at 100Hz
+pwm_leds = [GPIO.PWM(pin, 100) for pin in pins]
+
+# Start PWM with 0 duty cycle (LEDs off)
+for pwm in pwm_leds:
+    pwm.start(0)
+
+# ---------------- GUI SETUP ----------------
+def update_pwm1(val):
+    pwm_leds[0].ChangeDutyCycle(int(val))
+
+def update_pwm2(val):
+    pwm_leds[1].ChangeDutyCycle(int(val))
+
+def update_pwm3(val):
+    pwm_leds[2].ChangeDutyCycle(int(val))
+
+root = tk.Tk()
+root.title("LED PWM Control")
+
+# Slider 1
+slider1 = tk.Scale(root, from_=0, to=100, orient=tk.HORIZONTAL,
+                   label="LED 1 Brightness", command=update_pwm1)
+slider1.pack()
+
+# Slider 2
+slider2 = tk.Scale(root, from_=0, to=100, orient=tk.HORIZONTAL,
+                   label="LED 2 Brightness", command=update_pwm2)
+slider2.pack()
+
+# Slider 3
+slider3 = tk.Scale(root, from_=0, to=100, orient=tk.HORIZONTAL,
+                   label="LED 3 Brightness", command=update_pwm3)
+slider3.pack()
+
+# Run GUI loop
+try:
+    root.mainloop()
+finally:
+    for pwm in pwm_leds:
+        pwm.stop()
+    GPIO.cleanup()
